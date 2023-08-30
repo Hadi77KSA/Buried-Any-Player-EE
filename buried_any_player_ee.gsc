@@ -13,6 +13,7 @@ main()
 	replaceFunc( ::_are_all_players_in_time_bomb_volume, ::_are_all_players_in_time_bomb_volume_qol );
 	replaceFunc( ::ctw_max_start_wisp, ::custom_ctw_max_start_wisp);
 	replaceFunc( ::sq_bp_set_current_bulb, ::custom_sq_bp_set_current_bulb);
+	replaceFunc( ::sq_ml_puzzle_logic, ::new_sq_ml_puzzle_logic);
 	replaceFunc( ::ows_target_delete_timer, ::new_ows_target_delete_timer );
 	replaceFunc( ::ows_targets_start, ::new_ows_targets_start);
 }
@@ -27,7 +28,7 @@ onPlayerConnect()
 	while ( 1 )
 	{
 		level waittill( "connected", player );
-		player iPrintLn( "^2Any Player EE Mod ^5Buried" );
+		player iPrintLn( "^3Any Player EE Mod ^5Buried" );
 	}
 }
 
@@ -41,6 +42,9 @@ playertracker_onlast_step()
 			break;
 		case 2:
 			level.targets_allowed_to_be_missed = 45; // Total (84) - ( Candy Shop (20) + Saloon (19) )
+			break;
+		case 3:
+			level.targets_allowed_to_be_missed = 23; // Total (84) - ( Candy Shop (20) + Saloon (19) + Barn (22) )
 			break;
 		default: //All 4 areas of the map
 			level.targets_allowed_to_be_missed = 0;
@@ -124,10 +128,54 @@ custom_sq_bp_set_current_bulb( str_tag )
 
 	level.m_sq_bp_active_light = sq_bp_light_on( str_tag, "yellow" );
 	level.str_sq_bp_active_light = str_tag;
+	if ( getPlayers().size == 1 )
+	{
+		wait 1;
+		sq_bp_light_on( str_tag, "green" );
+		level notify( "sq_bp_correct_button" );
+	}
 	if ( getPlayers().size > 2 )
 	{
 		wait 10;
 		level notify( "sq_bp_timeout" );
+	}
+}
+
+new_sq_ml_puzzle_logic()
+{
+	a_levers = getentarray( "sq_ml_lever", "targetname" );
+	level.sq_ml_curr_lever = 0;
+	a_levers = array_randomize( a_levers );
+
+	for ( i = 0; i < a_levers.size; i++ )
+		a_levers[i].n_lever_order = i;
+
+	while ( true )
+	{
+		level.sq_ml_curr_lever = 0;
+		sq_ml_puzzle_wait_for_levers();
+		n_correct = 0;
+
+		foreach ( m_lever in a_levers )
+		{
+			players = getPlayers();
+			lever_flipped_in_position = m_lever.n_flip_number + 1;
+			if ( m_lever.n_flip_number == m_lever.n_lever_order )
+			{
+				playfxontag( level._effect["sq_spark"], m_lever, "tag_origin" );
+				n_correct++;
+				m_lever playsound( "zmb_sq_maze_correct_spark" );
+				AllClientsPrint( "Lever flipped in position " + lever_flipped_in_position + ": ^3Spark" );
+			}
+			AllClientsPrint( "Lever flipped in position " + lever_flipped_in_position + ": No Spark" );
+		}
+		if ( n_correct == a_levers.size )
+			flag_set( "sq_ip_puzzle_complete" );
+
+		level waittill( "zm_buried_maze_changed" );
+
+		level notify( "sq_ml_reset_levers" );
+		wait 1;
 	}
 }
 
@@ -137,8 +185,10 @@ new_ows_target_delete_timer()
 	wait 4;
 	self notify( "ows_target_timeout" );
 	level.targets_allowed_to_be_missed--;
-	if ( level.targets_allowed_to_be_missed < 0 )
+	if ( level.targets_allowed_to_be_missed < 0 || ( getPlayers().size == 3 && level.targets_allowed_to_be_missed > 4 && level.targets_allowed_to_be_missed < 23 ) ) //makes the step on 3p be optional between 3 locations and all locations.
 		flag_set( "sq_ows_target_missed" );
+	else if ( getPlayers().size == 3 && level.targets_allowed_to_be_missed >= 0 && level.targets_allowed_to_be_missed <= 4 ) //clears the flag in the case that the players choose to only shoot the targets from 3 locations instead of all.
+		flag_clear( "sq_ows_target_missed" );
 }
 
 new_ows_targets_start()
