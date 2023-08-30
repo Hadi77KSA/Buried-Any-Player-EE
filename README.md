@@ -11,6 +11,9 @@ On 2p, removed time limit. Only resets if it's failed.
 #### Round Infinity A.K.A the Time Bomb Step
 Can be done with less than 4 players. Requires all players in the lobby to be near the location of the Time Bomb.
 
+#### Maze Levers
+Notifies the players whether a switch flipped in a specific position has sparked or not. This is done for each switch.
+
 ### Sharpshooter
 Minimum number of required targets:
 - 1p: 20 targets (Candy Shop)
