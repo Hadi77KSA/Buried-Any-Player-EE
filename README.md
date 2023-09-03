@@ -9,7 +9,8 @@ On 2p, removed time limit. Only resets if it's failed.
 
 ### Richtofen Side
 #### Round Infinity A.K.A the Time Bomb Step
-Can be done with less than 4 players. Requires all players in the lobby to be near the location of the Time Bomb.
+On 4p or less, requires all players in the lobby to be near the location of the Time Bomb.
+If the number of players is greater than 4, the step will only work if 4 players are near the location, no more no less.
 
 #### Maze Levers
 Notifies the players whether a switch flipped in a specific position has sparked or not. This is done for each switch.
