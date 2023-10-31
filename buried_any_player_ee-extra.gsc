@@ -167,7 +167,8 @@ new_sq_ml_puzzle_logic()
 				m_lever playsound( "zmb_sq_maze_correct_spark" );
 				AllClientsPrint( "Lever flipped in position " + lever_flipped_in_position + ": ^3Spark" );
 			}
-			AllClientsPrint( "Lever flipped in position " + lever_flipped_in_position + ": No Spark" );
+			else
+				AllClientsPrint( "Lever flipped in position " + lever_flipped_in_position + ": No Spark" );
 		}
 		if ( n_correct == a_levers.size )
 			flag_set( "sq_ip_puzzle_complete" );
