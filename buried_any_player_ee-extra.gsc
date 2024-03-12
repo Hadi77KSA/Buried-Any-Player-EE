@@ -1,21 +1,18 @@
 #include common_scripts\utility;
-#include maps\mp\_utility;
-#include maps\mp\zm_buried_sq;
 #include maps\mp\zm_buried_sq_ctw;
 #include maps\mp\zm_buried_sq_ip;
 #include maps\mp\zm_buried_sq_ows;
 #include maps\mp\zm_buried_sq_tpo;
-#include maps\mp\zombies\_zm_sidequests;
 #include maps\mp\zombies\_zm_utility;
 
 main()
 {
 	replaceFunc( ::_are_all_players_in_time_bomb_volume, ::_are_all_players_in_time_bomb_volume_qol );
-	replaceFunc( ::ctw_max_start_wisp, ::custom_ctw_max_start_wisp);
-	replaceFunc( ::sq_bp_set_current_bulb, ::custom_sq_bp_set_current_bulb);
+	replaceFunc( ::ctw_max_start_wisp, ::custom_ctw_max_start_wisp );
+	replaceFunc( ::sq_bp_set_current_bulb, ::custom_sq_bp_set_current_bulb );
 	replaceFunc( ::sq_ml_puzzle_logic, ::new_sq_ml_puzzle_logic);
 	replaceFunc( ::ows_target_delete_timer, ::new_ows_target_delete_timer );
-	replaceFunc( ::ows_targets_start, ::new_ows_targets_start);
+	replaceFunc( ::ows_targets_start, ::new_ows_targets_start );
 }
 
 init()
@@ -25,7 +22,7 @@ init()
 
 onPlayerConnect()
 {
-	while ( 1 )
+	while ( true )
 	{
 		level waittill( "connected", player );
 		player iPrintLn( "^3Any Player EE Mod ^5Buried" );
@@ -57,7 +54,10 @@ _are_all_players_in_time_bomb_volume_qol( e_volume )
 	a_players = get_players();
 	if ( getPlayers().size <= 3 )
 		n_required_players = a_players.size;
-
+/#
+	if ( getdvarint( #"_id_5256118F" ) > 0 )
+		n_required_players = a_players.size;
+#/
 	n_players_in_position = 0;
 
 	foreach ( player in a_players )
@@ -158,7 +158,6 @@ new_sq_ml_puzzle_logic()
 
 		foreach ( m_lever in a_levers )
 		{
-			players = getPlayers();
 			lever_flipped_in_position = m_lever.n_flip_number + 1;
 			if ( m_lever.n_flip_number == m_lever.n_lever_order )
 			{
@@ -170,11 +169,15 @@ new_sq_ml_puzzle_logic()
 			else
 				AllClientsPrint( "Lever flipped in position " + lever_flipped_in_position + ": No Spark" );
 		}
+
+/#
+		iprintlnbold( "Levers Correct: " + n_correct );
+#/
+
 		if ( n_correct == a_levers.size )
 			flag_set( "sq_ip_puzzle_complete" );
 
 		level waittill( "zm_buried_maze_changed" );
-
 		level notify( "sq_ml_reset_levers" );
 		wait 1;
 	}
@@ -190,6 +193,9 @@ new_ows_target_delete_timer()
 		flag_set( "sq_ows_target_missed" );
 	else if ( getPlayers().size == 3 && level.targets_allowed_to_be_missed >= 0 && level.targets_allowed_to_be_missed <= 4 ) //clears the flag in the case that the players choose to only shoot the targets from 3 locations instead of all.
 		flag_clear( "sq_ows_target_missed" );
+/#
+	iprintlnbold( "missed target! step failed. target @ " + self.origin );
+#/
 }
 
 new_ows_targets_start()
