@@ -10,7 +10,7 @@ main()
 	replaceFunc( ::_are_all_players_in_time_bomb_volume, ::_are_all_players_in_time_bomb_volume_qol );
 	replaceFunc( ::ctw_max_start_wisp, ::custom_ctw_max_start_wisp );
 	replaceFunc( ::sq_bp_set_current_bulb, ::custom_sq_bp_set_current_bulb );
-	replaceFunc( ::sq_ml_puzzle_logic, ::new_sq_ml_puzzle_logic);
+	replaceFunc( ::sq_ml_puzzle_logic, ::new_sq_ml_puzzle_logic );
 	replaceFunc( ::ows_target_delete_timer, ::new_ows_target_delete_timer );
 	replaceFunc( ::ows_targets_start, ::new_ows_targets_start );
 }
