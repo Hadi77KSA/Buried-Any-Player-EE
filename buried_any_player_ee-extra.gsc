@@ -9,8 +9,9 @@ main()
 {
 	replaceFunc( ::_are_all_players_in_time_bomb_volume, ::_are_all_players_in_time_bomb_volume_qol );
 	replaceFunc( ::ctw_max_start_wisp, ::custom_ctw_max_start_wisp );
-	replaceFunc( ::sq_bp_set_current_bulb, ::custom_sq_bp_set_current_bulb );
-	replaceFunc( ::sq_ml_puzzle_logic, ::new_sq_ml_puzzle_logic );
+	replaceFunc( ::sq_bp_set_current_bulb, ::custom_sq_bp_set_current_bulb ); // extra_b
+	replaceFunc( ::sq_ml_puzzle_logic, ::new_sq_ml_puzzle_logic ); // extra_a
+	// extra_c
 	replaceFunc( ::ows_target_delete_timer, ::new_ows_target_delete_timer );
 	replaceFunc( ::ows_targets_start, ::new_ows_targets_start );
 }
@@ -22,17 +23,23 @@ init()
 
 onPlayerConnect()
 {
-	while ( true )
+	for (;;)
 	{
 		level waittill( "connected", player );
-		player iPrintLn( "^3Any Player EE Mod ^5Buried" );
+		player thread display_mod_message();
 	}
+}
+
+display_mod_message()
+{
+	self endon( "disconnect" );
+	flag_wait( "initial_players_connected" );
+	self iPrintLn( "^3Any Player EE Mod ^5Buried" );
 }
 
 playertracker_onlast_step()
 {
-	players = getPlayers();
-	switch ( players.size )
+	switch ( getPlayers().size )
 	{
 		case 1:
 			level.targets_allowed_to_be_missed = 64; // Total (84) - ( Candy Shop (20) )
@@ -52,8 +59,10 @@ _are_all_players_in_time_bomb_volume_qol( e_volume )
 {
 	n_required_players = 4;
 	a_players = get_players();
-	if ( getPlayers().size <= 3 )
+
+	if ( a_players.size < 4 )
 		n_required_players = a_players.size;
+
 /#
 	if ( getdvarint( #"_id_5256118F" ) > 0 )
 		n_required_players = a_players.size;
@@ -105,9 +114,9 @@ buried_maxis_wisp()
 {
 	self endon( "death" );
 
-	if ( getPlayers().size <= 2 )
+	if ( getPlayers().size < 3 )
 	{
-		while ( true )
+		for (;;)
 		{
 			if ( self.n_sq_energy <= 20 )
 				self.n_sq_energy += 20;
@@ -128,12 +137,14 @@ custom_sq_bp_set_current_bulb( str_tag )
 
 	level.m_sq_bp_active_light = sq_bp_light_on( str_tag, "yellow" );
 	level.str_sq_bp_active_light = str_tag;
+
 	if ( getPlayers().size == 1 )
 	{
 		wait 1;
 		sq_bp_light_on( str_tag, "green" );
 		level notify( "sq_bp_correct_button" );
 	}
+
 	if ( getPlayers().size > 2 )
 	{
 		wait 10;
@@ -159,6 +170,7 @@ new_sq_ml_puzzle_logic()
 		foreach ( m_lever in a_levers )
 		{
 			lever_flipped_in_position = m_lever.n_flip_number + 1;
+
 			if ( m_lever.n_flip_number == m_lever.n_lever_order )
 			{
 				playfxontag( level._effect["sq_spark"], m_lever, "tag_origin" );
@@ -189,10 +201,12 @@ new_ows_target_delete_timer()
 	wait 4;
 	self notify( "ows_target_timeout" );
 	level.targets_allowed_to_be_missed--;
+
 	if ( level.targets_allowed_to_be_missed < 0 || ( getPlayers().size == 3 && level.targets_allowed_to_be_missed > 4 && level.targets_allowed_to_be_missed < 23 ) ) //makes the step on 3p be optional between 3 locations and all locations.
 		flag_set( "sq_ows_target_missed" );
 	else if ( getPlayers().size == 3 && level.targets_allowed_to_be_missed >= 0 && level.targets_allowed_to_be_missed <= 4 ) //clears the flag in the case that the players choose to only shoot the targets from 3 locations instead of all.
 		flag_clear( "sq_ows_target_missed" );
+
 /#
 	iprintlnbold( "missed target! step failed. target @ " + self.origin );
 #/
